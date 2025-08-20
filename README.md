@@ -1,6 +1,11 @@
 # Multi-Domain Favicon Manager
 
-A WordPress plugin that adds unique favicon support for each domain mapping in the [Multiple Domain Mapping on single site](https://wordpress.org/plugins/multiple-domain-mapping-on-single-site/) plugin. Automatically suppresses WordPress default site icons when custom favicons are defined.
+**Version:** 1.0.6  
+**Tested up to:** WordPress 6.7  
+**License:** GPL v2 or later  
+**Stable tag:** 1.0.6
+
+A WordPress plugin that adds unique favicon support for each domain mapping in the [Multiple Domain Mapping on single site](https://wordpress.org/plugins/multiple-domain-mapping-on-single-site/) plugin.
 
 **Plugin Repository**: [https://github.com/JediConcepts/MultiDomainFavicon](https://github.com/JediConcepts/MultiDomainFavicon)  
 **Support**: dev@jediconcepts.com
