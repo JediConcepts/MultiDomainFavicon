@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Multi-Domain Favicon Manager
- * Plugin URI: https://github.com/jediconcepts/multi-domain-favicon
+ * Plugin URI: https://github.com/jediconcepts/multi-domain-favicon-manager
  * Description: Adds unique favicon support for each domain mapping in the Multiple Domain Mapping plugin. Automatically suppresses WordPress default site icons when custom favicons are defined.
  * Version: 1.0.6
  * Author: JediConcepts
