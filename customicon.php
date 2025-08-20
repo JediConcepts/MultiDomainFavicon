@@ -3,8 +3,8 @@
  * Plugin Name: Multi-Domain Favicon Manager
  * Plugin URI: https://github.com/JediConcepts/MultiDomainFavicon
  * Description: Adds unique favicon support for each domain mapping in the Multiple Domain Mapping plugin. Automatically suppresses WordPress default site icons when custom favicons are defined.
- * Version: 1.0.3
- * Author: Jedi Concepts
+ * Version: 1.0.5
+ * Author: JediConcepts
  * Author URI: https://jediconcepts.com
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,6 +14,7 @@
  * Tested up to: 6.3
  * Requires PHP: 7.4
  * Network: false
+ * Support: dev@jediconcepts.com
  */
 
 // Prevent direct access
@@ -49,16 +50,21 @@ class MDM_Favicon_Manager {
     }
     
     public function init() {
+        // Load text domain first
+        load_plugin_textdomain('multidomainfavicon', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+        
         // Check if Multiple Domain Mapping plugin is active
         if (!$this->check_mdm_plugin()) {
             add_action('admin_notices', array($this, 'mdm_plugin_missing_notice'));
+            
+            // Still show the notice even if MDM plugin gets activated during this request
+            if (get_option('mdm_favicon_show_mdm_notice')) {
+                delete_option('mdm_favicon_show_mdm_notice');
+            }
             return;
         }
         
         $this->mdm_plugin_active = true;
-        
-        // Load text domain
-        load_plugin_textdomain('multidomainfavicon', false, dirname(plugin_basename(__FILE__)) . '/languages/');
         
         // Initialize admin interface
         if (is_admin()) {
@@ -94,12 +100,46 @@ class MDM_Favicon_Manager {
     
     public function mdm_plugin_missing_notice() {
         $class = 'notice notice-error';
+        $install_url = '';
+        $button_text = '';
+        $action_needed = '';
+        
+        // Check if the plugin exists but is not activated
+        if (file_exists(WP_PLUGIN_DIR . '/multiple-domain-mapping-on-single-site/multiple-domain-mapping-on-single-site.php')) {
+            // Plugin exists but not activated
+            $install_url = wp_nonce_url(
+                admin_url('plugins.php?action=activate&plugin=multiple-domain-mapping-on-single-site/multiple-domain-mapping-on-single-site.php'),
+                'activate-plugin_multiple-domain-mapping-on-single-site/multiple-domain-mapping-on-single-site.php'
+            );
+            $button_text = __('Activate Plugin', 'multidomainfavicon');
+            $action_needed = __('The plugin is installed but not activated.', 'multidomainfavicon');
+        } else {
+            // Plugin needs to be installed
+            $install_url = wp_nonce_url(
+                admin_url('update.php?action=install-plugin&plugin=multiple-domain-mapping-on-single-site'),
+                'install-plugin_multiple-domain-mapping-on-single-site'
+            );
+            $button_text = __('Install Plugin', 'multidomainfavicon');
+            $action_needed = __('Click the button below to automatically install it.', 'multidomainfavicon');
+        }
+        
         $message = sprintf(
             __('Multi-Domain Favicon Manager requires the %s plugin to be installed and activated.', 'multidomainfavicon'),
             '<strong>Multiple Domain Mapping on single site</strong>'
         );
         
-        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), $message);
+        echo '<div class="' . esc_attr($class) . '">';
+            echo '<p>' . $message . '</p>';
+            echo '<p>' . $action_needed . '</p>';
+            echo '<p>';
+                echo '<a href="' . esc_url($install_url) . '" class="button button-primary">' . $button_text . '</a> ';
+                echo '<a href="https://wordpress.org/plugins/multiple-domain-mapping-on-single-site/" target="_blank" class="button button-secondary">' . __('View Plugin Info', 'multidomainfavicon') . '</a>';
+            echo '</p>';
+            echo '<style>';
+                echo '.notice.notice-error p:last-of-type { margin-bottom: 10px; }';
+                echo '.notice.notice-error .button { margin-right: 10px; }';
+            echo '</style>';
+        echo '</div>';
     }
     
     public function admin_scripts($hook) {
