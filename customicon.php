@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Multi-Domain Favicon Manager
- * Plugin URI: https://github.com/JediConcepts/MultiDomainFavicon
+ * Plugin URI: https://github.com/jediconcepts/multi-domain-favicon
  * Description: Adds unique favicon support for each domain mapping in the Multiple Domain Mapping plugin. Automatically suppresses WordPress default site icons when custom favicons are defined.
  * Version: 1.0.6
  * Author: JediConcepts
@@ -10,7 +10,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: multidomainfavicon-main
  * Requires at least: 5.0
- * Tested up to: 6.7
+ * Tested up to: 6.8
  * Requires PHP: 7.4
  * Support: dev@jediconcepts.com
  * Requires Plugins: multiple-domain-mapping-on-single-site
@@ -107,21 +107,21 @@ class MDM_Favicon_Manager {
                 admin_url('plugins.php?action=activate&plugin=multiple-domain-mapping-on-single-site/multiple-domain-mapping-on-single-site.php'),
                 'activate-plugin_multiple-domain-mapping-on-single-site/multiple-domain-mapping-on-single-site.php'
             );
-            $button_text = __('Activate Plugin', 'MultiDomainFavicon-main');
-            $action_needed = __('The plugin is installed but not activated.', 'MultiDomainFavicon-main');
+            $button_text = __('Activate Plugin', 'multidomainfavicon-main');
+            $action_needed = __('The plugin is installed but not activated.', 'multidomainfavicon-main');
         } else {
             // Plugin needs to be installed
             $install_url = wp_nonce_url(
                 admin_url('update.php?action=install-plugin&plugin=multiple-domain-mapping-on-single-site'),
                 'install-plugin_multiple-domain-mapping-on-single-site'
             );
-            $button_text = __('Install Plugin', 'MultiDomainFavicon-main');
-            $action_needed = __('Click the button below to automatically install it.', 'MultiDomainFavicon-main');
+            $button_text = __('Install Plugin', 'multidomainfavicon-main');
+            $action_needed = __('Click the button below to automatically install it.', 'multidomainfavicon-main');
         }
         
-        // translators: %s is the name of the required plugin "Multiple Domain Mapping on single site"
+        
         $message = sprintf(
-            __('Multi-Domain Favicon Manager requires the %s plugin to be installed and activated.', 'multidomainfavicon-main'),
+            __('Multi-Domain Favicon Manager requires the multiple-domain-mapping-on-single-site plugin to be installed and activated.', 'multidomainfavicon-main'),
             '<strong>Multiple Domain Mapping on single site</strong>'
         );
         
@@ -140,13 +140,11 @@ class MDM_Favicon_Manager {
     }
     
     public function admin_scripts($hook) {
-        // Check for the correct MDM page with proper nonce verification for admin requests
+        // Check for the correct MDM page
         if (is_admin() && current_user_can('manage_options')) {
-            $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
             $is_mdm_page = (
                 strpos($hook, 'multidomainmapping') !== false ||
-                strpos($hook, 'multiple-domain-mapping') !== false ||
-                strpos($page, 'multiple-domain-mapping') !== false
+                strpos($hook, 'multiple-domain-mapping') !== false
             );
             
             if (!$is_mdm_page) {
@@ -492,7 +490,7 @@ class MDM_Favicon_Manager {
                 var wrapper = button.closest('.mdm-favicon-wrapper');
                 var preview = wrapper.siblings('.mdm-favicon-preview');
                 
-                var searchTerm = prompt('Enter filename to search for:\n\nExamples:\n• favicon.png\n• logo\n• icon', 'favicon');
+                var searchTerm = prompt('Enter filename to search for:\\n\\nExamples:\\n• favicon.png\\n• logo\\n• icon', 'favicon');
                 
                 if (searchTerm && searchTerm.trim()) {
                     // Use the same library config as Upload New, but with search
@@ -529,11 +527,11 @@ class MDM_Favicon_Manager {
                 
                 if (!currentUrl) {
                     var suggestedUrl = prompt(
-                        'Enter a favicon URL to convert between domains:\n\n' +
-                        'This will convert base domain URLs to mapped domain URLs for visitors.\n\n' +
-                        'Example:\n' +
-                        '• https://basedomain.com/wp-content/uploads/favicon.png\n' +
-                        '  → https://mappeddomain.com/wp-content/uploads/favicon.png',
+                        'Enter a favicon URL to convert between domains:\\n\\n' +
+                        'This will convert base domain URLs to mapped domain URLs for visitors.\\n\\n' +
+                        'Example:\\n' +
+                        '• https://basedomain.com/wp-content/uploads/favicon.png\\n' +
+                        '  -> https://mappeddomain.com/wp-content/uploads/favicon.png',
                         ''
                     );
                     if (suggestedUrl) {
@@ -566,8 +564,8 @@ class MDM_Favicon_Manager {
                         
                         updateFaviconField(target, fakeAttachment, inputField, wrapper, preview);
                         
-                        alert('URL converted successfully!\n\n' +
-                              'From: ' + currentUrl + '\n' +
+                        alert('URL converted successfully!\\n\\n' +
+                              'From: ' + currentUrl + '\\n' +
                               'To: ' + convertedUrl);
                     };
                     testImg.onerror = function() {
@@ -592,9 +590,9 @@ class MDM_Favicon_Manager {
                     };
                     testImg.src = convertedUrl;
                 } else {
-                    alert('URL is already in the correct format or no conversion needed.\n\n' +
-                          'Current URL: ' + currentUrl + '\n' +
-                          'Target domain: ' + targetDomain + '\n\n' +
+                    alert('URL is already in the correct format or no conversion needed.\\n\\n' +
+                          'Current URL: ' + currentUrl + '\\n' +
+                          'Target domain: ' + targetDomain + '\\n\\n' +
                           'Make sure the target domain is different from the current URL domain.');
                 }
             });
