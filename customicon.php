@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/JediConcepts/MultiDomainFavicon
  * Description: Adds unique favicon support for each domain mapping in the Multiple Domain Mapping plugin. Automatically suppresses WordPress default site icons when custom favicons are defined.
  * Version: 1.0.3
- * Author: Your Name
+ * Author: Jedi Concepts
  * Author URI: https://jediconcepts.com
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
