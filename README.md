@@ -20,7 +20,7 @@ A WordPress plugin that adds unique favicon support for each domain mapping in t
 **Plugin Repository**: [https://github.com/jediconcepts/multi-domain-favicon](https://github.com/jediconcepts/multi-domain-favicon)  
 **Support**: dev@jediconcepts.com
 
-= Features =
+# Features 
 
 * **Unique favicons per mapped domain** - Set different favicons for each of your mapped domains
 * **Media library integration** - Upload new favicons or browse existing media
