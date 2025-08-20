@@ -8,13 +8,14 @@
  * Author URI: https://jediconcepts.com
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: multidomainfavicon
+ * Text Domain: multi-domain-favicon-manager
  * Domain Path: /languages
  * Requires at least: 5.0
- * Tested up to: 6.3
+ * Tested up to: 6.7
  * Requires PHP: 7.4
  * Network: false
  * Support: dev@jediconcepts.com
+ * Requires Plugins: multiple-domain-mapping-on-single-site
  */
 
 // Prevent direct access
@@ -23,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MDM_FAVICON_VERSION', '1.0.3');
+define('MDM_FAVICON_VERSION', '1.0.5');
 define('MDM_FAVICON_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MDM_FAVICON_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MDM_FAVICON_PLUGIN_FILE', __FILE__);
@@ -51,7 +52,7 @@ class MDM_Favicon_Manager {
     
     public function init() {
         // Load text domain first
-        load_plugin_textdomain('multidomainfavicon', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+        load_plugin_textdomain('multi-domain-favicon-manager', false, dirname(plugin_basename(__FILE__)) . '/languages/');
         
         // Check if Multiple Domain Mapping plugin is active
         if (!$this->check_mdm_plugin()) {
@@ -111,20 +112,20 @@ class MDM_Favicon_Manager {
                 admin_url('plugins.php?action=activate&plugin=multiple-domain-mapping-on-single-site/multiple-domain-mapping-on-single-site.php'),
                 'activate-plugin_multiple-domain-mapping-on-single-site/multiple-domain-mapping-on-single-site.php'
             );
-            $button_text = __('Activate Plugin', 'multidomainfavicon');
-            $action_needed = __('The plugin is installed but not activated.', 'multidomainfavicon');
+            $button_text = __('Activate Plugin', 'multi-domain-favicon-manager');
+            $action_needed = __('The plugin is installed but not activated.', 'multi-domain-favicon-manager');
         } else {
             // Plugin needs to be installed
             $install_url = wp_nonce_url(
                 admin_url('update.php?action=install-plugin&plugin=multiple-domain-mapping-on-single-site'),
                 'install-plugin_multiple-domain-mapping-on-single-site'
             );
-            $button_text = __('Install Plugin', 'multidomainfavicon');
-            $action_needed = __('Click the button below to automatically install it.', 'multidomainfavicon');
+            $button_text = __('Install Plugin', 'multi-domain-favicon-manager');
+            $action_needed = __('Click the button below to automatically install it.', 'multi-domain-favicon-manager');
         }
         
         $message = sprintf(
-            __('Multi-Domain Favicon Manager requires the %s plugin to be installed and activated.', 'multidomainfavicon'),
+            __('Multi-Domain Favicon Manager requires the %s plugin to be installed and activated.', 'multi-domain-favicon-manager'),
             '<strong>Multiple Domain Mapping on single site</strong>'
         );
         
@@ -133,7 +134,7 @@ class MDM_Favicon_Manager {
             echo '<p>' . $action_needed . '</p>';
             echo '<p>';
                 echo '<a href="' . esc_url($install_url) . '" class="button button-primary">' . $button_text . '</a> ';
-                echo '<a href="https://wordpress.org/plugins/multiple-domain-mapping-on-single-site/" target="_blank" class="button button-secondary">' . __('View Plugin Info', 'multidomainfavicon') . '</a>';
+                echo '<a href="https://wordpress.org/plugins/multiple-domain-mapping-on-single-site/" target="_blank" class="button button-secondary">' . __('View Plugin Info', 'multi-domain-favicon-manager') . '</a>';
             echo '</p>';
             echo '<style>';
                 echo '.notice.notice-error p:last-of-type { margin-bottom: 10px; }';
@@ -193,7 +194,7 @@ class MDM_Favicon_Manager {
         
         echo '<div class="mdm-favicon-field falke_mdm_mapping_additional_input">';
             echo '<p class="falke_mdm_mapping_additional_input_header">';
-                echo '<strong>' . __('Favicon for this domain', 'multidomainfavicon') . '</strong>';
+                echo '<strong>' . __('Favicon for this domain', 'multi-domain-favicon-manager') . '</strong>';
             echo '</p>';
             
             echo '<div class="mdm-favicon-wrapper">';
@@ -206,24 +207,24 @@ class MDM_Favicon_Manager {
                 
                 echo '<div class="mdm-favicon-buttons">';
                     echo '<button type="button" class="button mdm-favicon-upload" data-target="cnt_' . $cnt . '">';
-                        echo __('Upload New', 'multidomainfavicon');
+                        echo __('Upload New', 'multi-domain-favicon-manager');
                     echo '</button>';
                     
                     echo '<button type="button" class="button mdm-favicon-browse" data-target="cnt_' . $cnt . '">';
-                        echo __('Browse Media', 'multidomainfavicon');
+                        echo __('Browse Media', 'multi-domain-favicon-manager');
                     echo '</button>';
                     
                     echo '<button type="button" class="button mdm-favicon-search" data-target="cnt_' . $cnt . '">';
-                        echo __('Search by Name', 'multidomainfavicon');
+                        echo __('Search by Name', 'multi-domain-favicon-manager');
                     echo '</button>';
                     
                     echo '<button type="button" class="button mdm-favicon-convert" data-target="cnt_' . $cnt . '">';
-                        echo __('Convert URL', 'multidomainfavicon');
+                        echo __('Convert URL', 'multi-domain-favicon-manager');
                     echo '</button>';
                     
                     if ($favicon_url) {
                         echo '<button type="button" class="button mdm-favicon-remove" data-target="cnt_' . $cnt . '">';
-                            echo __('Remove', 'multidomainfavicon');
+                            echo __('Remove', 'multi-domain-favicon-manager');
                         echo '</button>';
                     }
                 echo '</div>';
@@ -236,13 +237,13 @@ class MDM_Favicon_Manager {
             }
             
             echo '<p class="description">';
-                echo __('Upload new, browse media library, search by filename, or convert domain URLs.', 'multidomainfavicon');
+                echo __('Upload new, browse media library, search by filename, or convert domain URLs.', 'multi-domain-favicon-manager');
                 echo '<br>';
-                echo __('Convert URL: Converts base domain URLs to mapped domain URLs for this specific mapping.', 'multidomainfavicon');
+                echo __('Convert URL: Converts base domain URLs to mapped domain URLs for this specific mapping.', 'multi-domain-favicon-manager');
                 echo '<br>';
-                echo __('Supported formats: .ico, .png, .svg (16x16 or 32x32 pixels recommended).', 'multidomainfavicon');
+                echo __('Supported formats: .ico, .png, .svg (16x16 or 32x32 pixels recommended).', 'multi-domain-favicon-manager');
                 echo '<br>';
-                echo __('This will override the default WordPress site icon when visitors access this domain.', 'multidomainfavicon');
+                echo __('This will override the default WordPress site icon when visitors access this domain.', 'multi-domain-favicon-manager');
             echo '</p>';
         echo '</div>';
     }
@@ -347,7 +348,7 @@ class MDM_Favicon_Manager {
     }
     
     public function add_settings_link($links) {
-        $settings_link = '<a href="' . admin_url('tools.php?page=multiple-domain-mapping-on-single-site%2Fmultidomainmapping.php') . '">' . __('Settings', 'multidomainfavicon') . '</a>';
+        $settings_link = '<a href="' . admin_url('tools.php?page=multiple-domain-mapping-on-single-site%2Fmultidomainmapping.php') . '">' . __('Settings', 'multi-domain-favicon-manager') . '</a>';
         array_unshift($links, $settings_link);
         return $links;
     }
