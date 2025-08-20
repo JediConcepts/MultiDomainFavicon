@@ -3,12 +3,12 @@
  * Plugin Name: Multi-Domain Favicon Manager
  * Plugin URI: https://github.com/JediConcepts/MultiDomainFavicon
  * Description: Adds unique favicon support for each domain mapping in the Multiple Domain Mapping plugin. Automatically suppresses WordPress default site icons when custom favicons are defined.
- * Version: 1.0.0
- * Author: Your Name
+ * Version: 1.0.1
+ * Author: JediConcepts
  * Author URI: https://jediconcepts.com
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: MultiDomainFavicon
+ * Text Domain: multidomainfavicon
  * Domain Path: /languages
  * Requires at least: 5.0
  * Tested up to: 6.3
@@ -32,7 +32,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MDM_FAVICON_VERSION', '1.0.0');
+define('MDM_FAVICON_VERSION', '1.0.1');
 define('MDM_FAVICON_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MDM_FAVICON_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('MDM_FAVICON_PLUGIN_FILE', __FILE__);
@@ -84,7 +84,7 @@ class MDM_Favicon_Manager {
         $this->mdm_plugin_active = true;
         
         // Load text domain
-        load_plugin_textdomain('mdm-favicon', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+        load_plugin_textdomain('multidomainfavicon', false, dirname(plugin_basename(__FILE__)) . '/languages/');
         
         // Initialize admin interface
         if (is_admin()) {
@@ -99,6 +99,11 @@ class MDM_Favicon_Manager {
         
         // Add settings link to plugins page
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'add_settings_link'));
+        
+        // Debug logging
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            add_action('wp_footer', array($this, 'debug_output'));
+        }
     }
     
     /**
@@ -136,7 +141,7 @@ class MDM_Favicon_Manager {
     public function mdm_plugin_missing_notice() {
         $class = 'notice notice-error';
         $message = sprintf(
-            __('Multi-Domain Favicon Manager requires the %s plugin to be installed and activated.', 'mdm-favicon'),
+            __('Multi-Domain Favicon Manager requires the %s plugin to be installed and activated.', 'multidomainfavicon'),
             '<strong>Multiple Domain Mapping on single site</strong>'
         );
         
@@ -147,32 +152,27 @@ class MDM_Favicon_Manager {
      * Enqueue admin scripts and styles
      */
     public function admin_scripts($hook) {
-        // Only load on MDM settings page
-        if (strpos($hook, 'multidomainmapping') === false) {
+        // Debug: Check what hook we're on
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('MDM Favicon: Admin hook: ' . $hook);
+        }
+        
+        // Check for the correct MDM page - try multiple patterns
+        $is_mdm_page = (
+            strpos($hook, 'multidomainmapping') !== false ||
+            strpos($hook, 'multiple-domain-mapping') !== false ||
+            (isset($_GET['page']) && strpos($_GET['page'], 'multiple-domain-mapping') !== false)
+        );
+        
+        if (!$is_mdm_page) {
             return;
         }
         
         wp_enqueue_media();
-        wp_enqueue_script(
-            'mdm-favicon-admin',
-            MDM_FAVICON_PLUGIN_URL . 'assets/admin.js',
-            array('jquery', 'media-upload'),
-            MDM_FAVICON_VERSION,
-            true
-        );
         
-        wp_localize_script('mdm-favicon-admin', 'mdmFavicon', array(
-            'selectFavicon' => __('Select Favicon', 'mdm-favicon'),
-            'useFavicon' => __('Use this favicon', 'mdm-favicon'),
-            'removeFavicon' => __('Remove', 'mdm-favicon')
-        ));
-        
-        wp_enqueue_style(
-            'mdm-favicon-admin',
-            MDM_FAVICON_PLUGIN_URL . 'assets/admin.css',
-            array(),
-            MDM_FAVICON_VERSION
-        );
+        // Use inline scripts since external files might not exist
+        add_action('admin_footer', array($this, 'admin_js_inline'));
+        add_action('admin_head', array($this, 'admin_css_inline'));
     }
     
     /**
@@ -185,7 +185,7 @@ class MDM_Favicon_Manager {
         
         echo '<div class="mdm-favicon-field falke_mdm_mapping_additional_input">';
             echo '<p class="falke_mdm_mapping_additional_input_header">';
-                echo '<strong>' . __('Favicon for this domain', 'mdm-favicon') . '</strong>';
+                echo '<strong>' . __('Favicon for this domain', 'multidomainfavicon') . '</strong>';
             echo '</p>';
             
             echo '<div class="mdm-favicon-wrapper">';
@@ -196,15 +196,21 @@ class MDM_Favicon_Manager {
                 echo 'class="mdm-favicon-url regular-text" ';
                 echo 'data-target="cnt_' . $cnt . '" />';
                 
-                echo '<button type="button" class="button mdm-favicon-upload" data-target="cnt_' . $cnt . '">';
-                    echo __('Upload', 'mdm-favicon');
-                echo '</button>';
-                
-                if ($favicon_url) {
-                    echo '<button type="button" class="button mdm-favicon-remove" data-target="cnt_' . $cnt . '">';
-                        echo __('Remove', 'mdm-favicon');
+                echo '<div class="mdm-favicon-buttons">';
+                    echo '<button type="button" class="button mdm-favicon-upload" data-target="cnt_' . $cnt . '">';
+                        echo __('Upload New', 'multidomainfavicon');
                     echo '</button>';
-                }
+                    
+                    echo '<button type="button" class="button mdm-favicon-browse" data-target="cnt_' . $cnt . '">';
+                        echo __('Browse Media', 'multidomainfavicon');
+                    echo '</button>';
+                    
+                    if ($favicon_url) {
+                        echo '<button type="button" class="button mdm-favicon-remove" data-target="cnt_' . $cnt . '">';
+                            echo __('Remove', 'multidomainfavicon');
+                        echo '</button>';
+                    }
+                echo '</div>';
             echo '</div>';
             
             if ($favicon_url) {
@@ -214,9 +220,11 @@ class MDM_Favicon_Manager {
             }
             
             echo '<p class="description">';
-                echo __('Upload a favicon (16x16 or 32x32 pixels, .ico, .png, or .svg format) for this specific domain.', 'mdm-favicon');
+                echo __('Upload a new favicon or browse your existing media library for favicon files.', 'multidomainfavicon');
                 echo '<br>';
-                echo __('This will override the default WordPress site icon when visitors access this domain.', 'mdm-favicon');
+                echo __('Supported formats: .ico, .png, .svg (16x16 or 32x32 pixels recommended).', 'multidomainfavicon');
+                echo '<br>';
+                echo __('This will override the default WordPress site icon when visitors access this domain.', 'multidomainfavicon');
             echo '</p>';
         echo '</div>';
     }
@@ -339,44 +347,40 @@ class MDM_Favicon_Manager {
      * Add settings link to plugins page
      */
     public function add_settings_link($links) {
-        $settings_link = '<a href="' . admin_url('tools.php?page=multiple-domain-mapping-on-single-site%2Fmultidomainmapping.php') . '">' . __('Settings', 'mdm-favicon') . '</a>';
+        $settings_link = '<a href="' . admin_url('tools.php?page=multiple-domain-mapping-on-single-site%2Fmultidomainmapping.php') . '">' . __('Settings', 'multidomainfavicon') . '</a>';
         array_unshift($links, $settings_link);
         return $links;
     }
-}
-
-// Initialize the plugin
-MDM_Favicon_Manager::get_instance();
-
-// Create assets directory structure on activation
-register_activation_hook(__FILE__, function() {
-    $upload_dir = wp_upload_dir();
-    $favicon_dir = $upload_dir['basedir'] . '/mdm-favicons';
     
-    if (!file_exists($favicon_dir)) {
-        wp_mkdir_p($favicon_dir);
-    }
-});
-
-// Add admin CSS inline if file doesn't exist
-add_action('admin_head', function() {
-    if (isset($_GET['page']) && strpos($_GET['page'], 'multidomainmapping') !== false) {
+    /**
+     * Output admin CSS inline
+     */
+    public function admin_css_inline() {
         ?>
         <style>
         .mdm-favicon-field {
             border-top: 1px solid #ddd;
             padding-top: 15px;
             margin-top: 15px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
         }
         .mdm-favicon-wrapper {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 10px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         .mdm-favicon-url {
             flex: 1;
             min-width: 300px;
+        }
+        .mdm-favicon-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
         }
         .mdm-favicon-preview {
             margin-top: 10px;
@@ -385,29 +389,51 @@ add_action('admin_head', function() {
             width: 32px;
             height: 32px;
             border: 1px solid #ddd;
-            background: #f9f9f9;
+            background: #fff;
             padding: 4px;
+            border-radius: 3px;
         }
         .mdm-favicon-remove {
-            color: #a00;
+            color: #a00 !important;
+            border-color: #a00 !important;
         }
         .mdm-favicon-remove:hover {
-            color: #dc3232;
+            color: #fff !important;
+            background: #dc3232 !important;
+            border-color: #dc3232 !important;
+        }
+        .mdm-favicon-upload {
+            background: #0073aa !important;
+            border-color: #0073aa !important;
+            color: #fff !important;
+        }
+        .mdm-favicon-upload:hover {
+            background: #005a87 !important;
+            border-color: #005a87 !important;
+        }
+        .mdm-favicon-browse {
+            background: #00a32a !important;
+            border-color: #00a32a !important;
+            color: #fff !important;
+        }
+        .mdm-favicon-browse:hover {
+            background: #008a20 !important;
+            border-color: #008a20 !important;
         }
         </style>
         <?php
     }
-});
-
-// Add admin JavaScript inline if file doesn't exist
-add_action('admin_footer', function() {
-    if (isset($_GET['page']) && strpos($_GET['page'], 'multidomainmapping') !== false) {
+    
+    /**
+     * Output admin JavaScript inline
+     */
+    public function admin_js_inline() {
         ?>
         <script>
         jQuery(document).ready(function($) {
-            var mediaUploader;
+            var uploadMediaUploader, browseMediaUploader;
             
-            // Upload favicon
+            // Upload new favicon
             $(document).on('click', '.mdm-favicon-upload', function(e) {
                 e.preventDefault();
                 
@@ -417,15 +443,11 @@ add_action('admin_footer', function() {
                 var wrapper = button.closest('.mdm-favicon-wrapper');
                 var preview = wrapper.siblings('.mdm-favicon-preview');
                 
-                if (mediaUploader) {
-                    mediaUploader.open();
-                    return;
-                }
-                
-                mediaUploader = wp.media({
-                    title: 'Select Favicon',
+                // Create new media uploader instance for uploads
+                uploadMediaUploader = wp.media({
+                    title: '<?php echo esc_js(__('Upload New Favicon', 'multidomainfavicon')); ?>',
                     button: {
-                        text: 'Use this favicon'
+                        text: '<?php echo esc_js(__('Use this favicon', 'multidomainfavicon')); ?>'
                     },
                     library: {
                         type: ['image/x-icon', 'image/png', 'image/svg+xml', 'image/jpeg', 'image/gif']
@@ -433,26 +455,65 @@ add_action('admin_footer', function() {
                     multiple: false
                 });
                 
-                mediaUploader.on('select', function() {
-                    var attachment = mediaUploader.state().get('selection').first().toJSON();
-                    
-                    inputField.val(attachment.url);
-                    
-                    // Update preview
-                    if (preview.length === 0) {
-                        preview = $('<div class="mdm-favicon-preview"></div>');
-                        wrapper.after(preview);
-                    }
-                    preview.html('<img src="' + attachment.url + '" alt="Favicon preview" />');
-                    
-                    // Add remove button if not exists
-                    if (wrapper.find('.mdm-favicon-remove').length === 0) {
-                        wrapper.append('<button type="button" class="button mdm-favicon-remove" data-target="' + target + '">Remove</button>');
-                    }
+                uploadMediaUploader.on('select', function() {
+                    var attachment = uploadMediaUploader.state().get('selection').first().toJSON();
+                    updateFaviconField(target, attachment, inputField, wrapper, preview);
                 });
                 
-                mediaUploader.open();
+                uploadMediaUploader.open();
             });
+            
+            // Browse existing media
+            $(document).on('click', '.mdm-favicon-browse', function(e) {
+                e.preventDefault();
+                
+                var button = $(this);
+                var target = button.data('target');
+                var inputField = $('.mdm-favicon-url[data-target="' + target + '"]');
+                var wrapper = button.closest('.mdm-favicon-wrapper');
+                var preview = wrapper.siblings('.mdm-favicon-preview');
+                
+                // Create new media uploader instance for browsing
+                browseMediaUploader = wp.media({
+                    title: '<?php echo esc_js(__('Select Favicon from Media Library', 'multidomainfavicon')); ?>',
+                    button: {
+                        text: '<?php echo esc_js(__('Use this favicon', 'multidomainfavicon')); ?>'
+                    },
+                    library: {
+                        type: ['image/x-icon', 'image/png', 'image/svg+xml', 'image/jpeg', 'image/gif'],
+                        uploadedTo: 0 // Show all media, not just uploaded to this post
+                    },
+                    multiple: false
+                });
+                
+                browseMediaUploader.on('select', function() {
+                    var attachment = browseMediaUploader.state().get('selection').first().toJSON();
+                    updateFaviconField(target, attachment, inputField, wrapper, preview);
+                });
+                
+                browseMediaUploader.open();
+            });
+            
+            // Shared function to update favicon field
+            function updateFaviconField(target, attachment, inputField, wrapper, preview) {
+                inputField.val(attachment.url);
+                
+                // Update preview
+                if (preview.length === 0) {
+                    preview = $('<div class="mdm-favicon-preview"></div>');
+                    wrapper.after(preview);
+                }
+                
+                var previewHtml = '<img src="' + attachment.url + '" alt="Favicon preview" />';
+                previewHtml += '<br><small>' + attachment.filename + ' (' + attachment.filesizeHumanReadable + ')</small>';
+                preview.html(previewHtml);
+                
+                // Add remove button if not exists
+                var buttonContainer = wrapper.find('.mdm-favicon-buttons');
+                if (buttonContainer.find('.mdm-favicon-remove').length === 0) {
+                    buttonContainer.append('<button type="button" class="button mdm-favicon-remove" data-target="' + target + '"><?php echo esc_js(__('Remove', 'multidomainfavicon')); ?></button>');
+                }
+            }
             
             // Remove favicon
             $(document).on('click', '.mdm-favicon-remove', function(e) {
@@ -468,9 +529,82 @@ add_action('admin_footer', function() {
                 preview.remove();
                 button.remove();
             });
+            
+            // Auto-detect favicon format and show preview when URL is manually entered
+            $(document).on('blur', '.mdm-favicon-url', function() {
+                var input = $(this);
+                var url = input.val().trim();
+                var target = input.data('target');
+                var wrapper = input.closest('.mdm-favicon-wrapper');
+                var preview = wrapper.siblings('.mdm-favicon-preview');
+                
+                if (url && isValidFaviconUrl(url)) {
+                    // Update preview for manually entered URLs
+                    if (preview.length === 0) {
+                        preview = $('<div class="mdm-favicon-preview"></div>');
+                        wrapper.after(preview);
+                    }
+                    
+                    var filename = url.substring(url.lastIndexOf('/') + 1);
+                    var previewHtml = '<img src="' + url + '" alt="Favicon preview" onerror="this.style.display=\'none\'" />';
+                    previewHtml += '<br><small>' + filename + '</small>';
+                    preview.html(previewHtml);
+                    
+                    // Add remove button if not exists
+                    var buttonContainer = wrapper.find('.mdm-favicon-buttons');
+                    if (buttonContainer.find('.mdm-favicon-remove').length === 0) {
+                        buttonContainer.append('<button type="button" class="button mdm-favicon-remove" data-target="' + target + '"><?php echo esc_js(__('Remove', 'multidomainfavicon')); ?></button>');
+                    }
+                } else if (!url) {
+                    // Remove preview if URL is cleared
+                    preview.remove();
+                    wrapper.find('.mdm-favicon-remove').remove();
+                }
+            });
+            
+            // Simple favicon URL validation
+            function isValidFaviconUrl(url) {
+                var faviconExtensions = ['.ico', '.png', '.svg', '.jpg', '.jpeg', '.gif'];
+                var urlLower = url.toLowerCase();
+                return faviconExtensions.some(function(ext) {
+                    return urlLower.includes(ext);
+                });
+            }
         });
         </script>
         <?php
+    }
+    
+    /**
+     * Debug output for troubleshooting
+     */
+    public function debug_output() {
+        if (!current_user_can('manage_options')) return;
+        
+        global $FALKE_MultipleDomainMapping;
+        
+        if (isset($FALKE_MultipleDomainMapping)) {
+            $currentMapping = $FALKE_MultipleDomainMapping->getCurrentMapping();
+            if (!empty($currentMapping['match'])) {
+                echo '<!-- MDM Favicon Debug: ';
+                echo 'Domain: ' . (isset($currentMapping['match']['domain']) ? $currentMapping['match']['domain'] : 'none');
+                echo ', Favicon: ' . (isset($currentMapping['match']['favicon']) ? $currentMapping['match']['favicon'] : 'none');
+                echo ' -->';
+            }
+        }
+    }
+}
+
+// Initialize the plugin
+MDM_Favicon_Manager::get_instance();
+
+// Create assets directory structure on activation
+register_activation_hook(__FILE__, function() {
+    $upload_dir = wp_upload_dir();
+    $favicon_dir = $upload_dir['basedir'] . '/mdm-favicons';
+    
+    if (!file_exists($favicon_dir)) {
+        wp_mkdir_p($favicon_dir);
     }
 });
 ?>
