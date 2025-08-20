@@ -1,7 +1,7 @@
 === Multi-Domain Favicon Manager ===
 Contributors: jediconcepts
 Tags: favicon, domain mapping, multisite, domains, icons
-Donate link: https://github.com/jediconcepts/multi-domain-favicon
+Donate link: https://github.com/jediconcepts/multi-domain-favicon-manager
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -15,7 +15,7 @@ Unique favicon support for each domain mapping in Multiple Domain Mapping plugin
 
 A WordPress plugin that adds unique favicon support for each domain mapping in the [Multiple Domain Mapping on single site](https://wordpress.org/plugins/multiple-domain-mapping-on-single-site/) plugin.
 
-**Plugin Repository**: [https://github.com/jediconcepts/multi-domain-favicon](https://github.com/jediconcepts/multi-domain-favicon)
+**Plugin Repository**: [https://github.com/jediconcepts/multi-domain-favicon-manager]
 **Support**: dev@jediconcepts.com
 
 = Features =
@@ -74,13 +74,13 @@ Supported favicon formats:
 == Installation ==
 
 = Method 1: GitHub Download =
-1. Download the latest release from [GitHub](https://github.com/jediconcepts/multi-domain-favicon/releases)
+1. Download the latest release from [GitHub](https://github.com/jediconcepts/multi-domain-favicon-manager/releases)
 1. Upload the `multi-domain-favicon` folder to `/wp-content/plugins/`
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Navigate to **Tools → Multidomain** to configure favicons
 
 = Method 2: WordPress Admin Upload =
-1. Download the plugin zip from [GitHub](https://github.com/jediconcepts/multi-domain-favicon)
+1. Download the plugin zip from [GitHub](https://github.com/jediconcepts/multi-domain-favicon-manager)
 1. Go to **Plugins → Add New** in WordPress admin
 1. Click **Upload Plugin** and select the zip file
 1. Activate the plugin
