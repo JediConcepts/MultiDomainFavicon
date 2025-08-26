@@ -1,0 +1,63 @@
+.multifama-favicon-field {
+    border-top: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 15px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+.multifama-favicon-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.multifama-favicon-url {
+    flex: 1;
+    min-width: 300px;
+}
+.multifama-favicon-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+.multifama-favicon-preview {
+    margin-top: 10px;
+}
+.multifama-favicon-preview img {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    background: #fff;
+    padding: 4px;
+    border-radius: 3px;
+}
+.multifama-favicon-upload {
+    background: #0073aa !important;
+    border-color: #0073aa !important;
+    color: #fff !important;
+}
+.multifama-favicon-browse {
+    background: #00a32a !important;
+    border-color: #00a32a !important;
+    color: #fff !important;
+}
+.multifama-favicon-search {
+    background: #f39c12 !important;
+    border-color: #f39c12 !important;
+    color: #fff !important;
+}
+.multifama-favicon-convert {
+    background: #8e44ad !important;
+    border-color: #8e44ad !important;
+    color: #fff !important;
+}
+.multifama-favicon-remove {
+    color: #a00 !important;
+    border-color: #a00 !important;
+}
+.multifama-favicon-remove:hover {
+    color: #fff !important;
+    background: #dc3232 !important;
+    border-color: #dc3232 !important;
+}
