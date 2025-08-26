@@ -5,7 +5,7 @@ Donate link: https://github.com/jediconcepts/multi-domain-favicon-manager
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -131,6 +131,13 @@ The plugin automatically removes WordPress default site icons. If you still see 
 4. Convert URL functionality for domain mapping scenarios
 
 == Changelog ==
+
+= 1.0.7 =
+* Fixed WordPress.org plugin directory review issues
+* Updated function/class/constant naming for better uniqueness (MULTIFAMA_ prefix)
+* Removed example domain references in JavaScript
+* Improved code compliance with WordPress plugin guidelines
+* Enhanced security and naming conventions
 
 = 1.0.6 =
 * Updated WordPress compatibility to 6.8
